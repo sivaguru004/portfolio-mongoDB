@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Poppins&family=Questrial&display=swap" rel="stylesheet" />
+
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  </head>
+  <body>
+    <header class="header">
+      <a href="#" class="logo">Portfolio</a>
+
+      <i class="bx bx-menu" id="menu-icon"></i>
+
+      <nav class="navbar">
+        <a href="#home" class="active">Home</a>
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#project">Project</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <section class="home" id="home">
+      <div class="home-content">
+        <h3>Hello, I am</h3>
+        <h1>{% if home_content %}{{ home_content.name }}{% else %}Sivaguru M{% endif %}</h1> {# Dynamically display name #}
+        <h3>And I'm a <span class="multiple-text"></span></h3>
+        <p>{% if home_content %}{{ home_content.introduction_text }}{% else %}Welcome to my portfolio! I'm a self-taught web developer passionate about building and deploying real-world web applications. I specialize in full-stack projects with a focus on robust backend logic and clean user interfaces, often incorporating user authentication. I'm eager to contribute my skills to meaningful projects and continue growing as a developer.{% endif %}</p>
+        <div class="social-media">
+          {% for detail in contact_details %}
+            {% if detail.type in "github,instagram,leetcode,linkedin" %}
+              <a href="{{ detail.url }}" target="_blank"><i class="{{ detail.icon_class }}"></i></a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if home_content and home_content.cv_pdf %}
+            <a href="{% static 'assets/cv.pdf' %}" class="btn" target="_blank">Download CV</a>
+        {% endif %}
+      </div>
+
+      <div class="home-img">
+        <img src="{% static 'images/Profile.png' %}" alt="Profile" />
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <div class="about-img">
+        <img src="{% static 'images/about.png' %}" alt="" />
+      </div>
+
+      <div class="about-content">
+        <h2 class="heading">About <span>Me</span></h2>
+        <h3>Full-Stack Developer!</h3>
+        <p>
+          {% if about_content %}{{ about_content.initial_paragraph|linebreaksbr }}{% else %}I’m a self-taught web developer passionate about building and deploying real-world web applications. I specialize in full-stack development with a strong focus on backend logic and clean, user-friendly interfaces. I often work on projects that include user authentication and dynamic features.{% endif %}
+          <br><br>
+          <span id="moreAboutText" style="display: none;">
+            {% if about_content %}{{ about_content.read_more_paragraph|linebreaksbr }}{% else %}I am focused on improving my skills every day by learning new technologies and building useful tools. I enjoy solving problems with code and aim to deliver efficient, scalable, and user-friendly solutions. I'm excited to contribute to meaningful projects and grow alongside a passionate team.{% endif %}
+          </span>
+        </p>
+        <a href="#" class="btn" id="readMoreBtn">Read More</a>
+      </div>
+    </section>
+
+    <section class="services" id="skills">
+      <h2 class="heading">My <span>Skills</span></h2>
+      <div class="services-container">
+        {% for category in skill_categories %}
+        <div class="services-box">
+          <i class="{{ category.icon_class }}"></i> <h3>{{ category.name }}</h3>
+          <p>
+            {% for skill in category.skills.all %}
+             {{ skill.name }} <br>
+            {% endfor %}
+          </p>
+        </div>
+        {% empty %}
+        <p>No skill categories added yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="portfolio" id="project">
+      <h2 class="heading">My <span>Projects</span></h2> {# Changed heading to "My Projects" #}
+      <div class="portfolio-container">
+        {% for project in projects %}
+        <div class="portfolio-box">
+          {# START MODIFICATION #}
+          {% if project.image %}
+          <img src="{{ project.image.url }}" alt="{{ project.title }}" />
+          {% else %}
+          {# Optional: Provide a placeholder image if no image is uploaded #}
+          <img src="{% static 'images/default_project.png' %}" alt="No Image" />
+          {% endif %}
+          {# END MODIFICATION #}
+          <div class="portfolio-layer">
+            <h4>{{ project.title }}</h4>
+            <p>{{ project.description }}</p>
+            <div class="project-links"> {# New wrapper div for horizontal alignment #}
+                {% if project.live_link %}<a style='margin: 5px;' href="{{ project.live_link }}" target="_blank"><i class="bx bx-link-external"></i></a>{% endif %}
+                {% if project.github_link %}<a style='margin: 5px;' href="{{ project.github_link }}" target="_blank"><i class="bx bxl-github"></i></a>{% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p>No projects added yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <h2 class="heading">Contact <span>Me!</span></h2>
+
+      <div class="contact-details">
+        {% for detail in contact_details %}
+          {# Add this condition to exclude LeetCode and GitHub #}
+          {% if detail.type not in "leetcode,github" %}
+            <div class="contact-item">
+              <i class="{{ detail.icon_class }}"></i>
+              <p>
+                {{ detail.get_type_display }}:
+                {% if detail.type == 'email' %}
+                  <a href="mailto:{{ detail.value }}" target="_blank">{{ detail.value }}</a>
+                {% elif detail.type == 'phone' %}
+                  <a href="tel:{{ detail.value }}">{{ detail.value }}</a>
+                {% elif detail.type == 'whatsapp' %}
+                  <a href="https://wa.me/{{ detail.value }}" target="_blank">{{ detail.value }}</a>
+                {% else %}
+                  <a href="{{ detail.url }}" target="_blank">{{ detail.value }}</a>
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <form action="{% url 'contact_form_submit' %}" method="post">
+        {% csrf_token %}
+        <div class="input-box">
+          <input type="text" name="full_name" placeholder="Full Name" required />
+          <input type="email" name="email_address" placeholder="Email Address" required />
+        </div>
+        <div class="input-box">
+          <input type="number" name="mobile_number" placeholder="Mobile Number" />
+          <input type="text" name="email_subject" placeholder="Email Subject" />
+        </div>
+        <textarea
+          name="message"
+          id=""
+          cols="30"
+          rows="10"
+          placeholder="Your Message"
+          required
+        ></textarea>
+        <input type="submit" value="Send Message" class="btn" />
+      </form>
+      {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+      {% endif %}
+    </section>
+
+    <footer class="footer">
+        <div class="footer-text">
+        <p>Copyright &copy; <span id="current-year"></span> by Sivaguru M | All Rights Reserved.</p>
+      </div>
+      <div class="footer-iconTap">
+        <a href="#home"><i class="bx bx-up-arrow-alt"></i></a>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/scrollreveal"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
+    <script src="{% static 'js/script.js' %}" async defer></script>
+    <script>
+      // Update the roles for Typed.js
+      document.addEventListener('DOMContentLoaded', function() {
+        const multipleTextElement = document.querySelector('.multiple-text');
+        if (multipleTextElement) {
+          // Get the roles string from the backend context
+          const rolesFromBackend = "{% if home_content %}{{ home_content.roles }}{% else %}Full-stack Developer, Python Developer{% endif %}";
+          const rolesArray = rolesFromBackend.split(',').map(role => role.trim());
+
+          const typed = new Typed('.multiple-text', {
+              strings: rolesArray, // Use the roles from backend
+              typeSpeed: 100,
+              backSpeed: 100,
+              backDelay: 1000,
+              loop: true
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
